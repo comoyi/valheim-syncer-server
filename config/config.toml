@@ -1,0 +1,9 @@
+# 日志等级 TRACE DEBUG INFO WARN ERROR OFF
+debuglevel = "WARN"
+
+# 端口
+port = 8080
+
+# 同步源文件夹
+#basedir = 'C:\valheim'
+basedir = '/tmp/valheim'
