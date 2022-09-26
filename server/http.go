@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/comoyi/valheim-syncer-server/log"
+	"io"
 	"mime"
 	"net/http"
+	"os"
 )
 
 func files(writer http.ResponseWriter, request *http.Request) {
@@ -29,7 +31,15 @@ func sync(writer http.ResponseWriter, request *http.Request) {
 
 	file := request.FormValue("file")
 	fmt.Printf("file: %s\n", file)
-	_, err := writer.Write([]byte("Hi\nHello\nASD\n"))
+
+	filePath := fmt.Sprintf("%s%s%s", baseDir, string(os.PathSeparator), file)
+	f, err := os.Open(filePath)
+	defer f.Close()
+	bytes, err := io.ReadAll(f)
+	if err != nil {
+		return
+	}
+	_, err = writer.Write(bytes)
 	if err != nil {
 		return
 	}
