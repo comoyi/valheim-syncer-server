@@ -3,6 +3,7 @@ package server
 import (
 	"crypto/md5"
 	"fmt"
+	"github.com/comoyi/valheim-syncer-server/config"
 	"github.com/comoyi/valheim-syncer-server/log"
 	"io"
 	"io/fs"
@@ -33,7 +34,13 @@ var baseDir string
 
 func Start() {
 
-	baseDir = "/tmp/vvv"
+	baseDir = config.Conf.BaseDir
+	if baseDir == "" {
+		fmt.Printf("baseDir invalid\n")
+		log.Errorf("baseDir invalid\n")
+		return
+	}
+	baseDir = strings.TrimSuffix(baseDir, string(os.PathSeparator))
 
 	go func() {
 		refreshFileInfo()
@@ -41,8 +48,10 @@ func Start() {
 
 	http.HandleFunc("/sync", sync)
 	http.HandleFunc("/files", files)
-	err := http.ListenAndServe(":10123", nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Conf.Port), nil)
 	if err != nil {
+		fmt.Printf("server start failed err: %v\n", err)
+		log.Errorf("server start failed err: %v\n", err)
 		return
 	}
 }
@@ -72,7 +81,14 @@ func doRefreshFileInfo() {
 
 func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 	return func(path string, info fs.FileInfo, err error) error {
+		if !strings.HasPrefix(path, baseDir) {
+			log.Warnf("path not excepted, path: %s\n", path)
+			return nil
+		}
 		pathRelative := strings.TrimPrefix(path, baseDir)
+		if pathRelative == "" {
+			return nil
+		}
 		var file *FileInfo
 		if info.IsDir() {
 			file = &FileInfo{

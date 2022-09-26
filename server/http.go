@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/comoyi/valheim-syncer-server/log"
 	"io"
-	"mime"
 	"net/http"
 	"os"
 )
@@ -19,7 +18,7 @@ func files(writer http.ResponseWriter, request *http.Request) {
 
 	j := string(bytes)
 	log.Debugf("json: %s\n", j)
-	writer.Header().Set("Content-Type", mime.TypeByExtension("json"))
+	writer.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	_, err = writer.Write(bytes)
 	if err != nil {
 		log.Debugf("write failed, err: %s\n", err)

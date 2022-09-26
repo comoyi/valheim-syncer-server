@@ -13,6 +13,8 @@ var Conf Config
 type Config struct {
 	DebugLevel string `toml:"debuglevel"`
 	LogLevel   int
+	Port       int    `toml:"port"`
+	BaseDir    string `toml:"basedir"`
 }
 
 func LoadConfig() {
@@ -20,6 +22,7 @@ func LoadConfig() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 	viper.AddConfigPath(".")
+	viper.AddConfigPath("config")
 	viper.AddConfigPath(fmt.Sprintf("%s%s%s", "$HOME", string(os.PathSeparator), ".valheim-syncer-server"))
 	err = viper.ReadInConfig()
 	if err != nil {
