@@ -29,7 +29,6 @@ func files(writer http.ResponseWriter, request *http.Request) {
 func sync(writer http.ResponseWriter, request *http.Request) {
 
 	file := request.FormValue("file")
-	fmt.Printf("file: %s\n", file)
 
 	filePath := fmt.Sprintf("%s%s%s", baseDir, string(os.PathSeparator), file)
 	f, err := os.Open(filePath)

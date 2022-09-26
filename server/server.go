@@ -107,7 +107,7 @@ func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 			}
 			hashSumRaw := md5.Sum(bytes)
 			hashSum := fmt.Sprintf("%x", hashSumRaw)
-			log.Debugf("file: %s, hashSum: %s\n", path, hashSum)
+			log.Tracef("file: %s, hashSum: %s\n", path, hashSum)
 			file = &FileInfo{
 				Path: pathRelative,
 				Type: TypeFile,
