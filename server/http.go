@@ -44,7 +44,7 @@ func sync(writer http.ResponseWriter, request *http.Request) {
 }
 
 func announcement(writer http.ResponseWriter, request *http.Request) {
-	content := "欢迎"
+	content := announcementContent
 	announcement := &Announcement{Content: content}
 
 	bytes, err := json.Marshal(announcement)

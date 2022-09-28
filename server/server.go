@@ -21,6 +21,9 @@ var serverFileInfo *ServerFileInfo = &ServerFileInfo{
 
 var baseDir string
 
+var appName = "Valheim Syncer Server"
+var versionText = "0.0.1"
+
 func Start() {
 
 	baseDir = config.Conf.BaseDir

@@ -7,5 +7,10 @@ import (
 
 func Start() {
 	config.LoadConfig()
-	server.Start()
+
+	go func() {
+		server.Start()
+	}()
+
+	server.StartGUI()
 }
