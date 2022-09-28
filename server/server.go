@@ -14,22 +14,11 @@ import (
 	"time"
 )
 
-type ServerFileInfo struct {
-	Files []*FileInfo `json:"files"`
+var serverFileInfo *ServerFileInfo = &ServerFileInfo{
+	ScanStatus: ScanStatusWait,
+	Files:      make([]*FileInfo, 0),
 }
 
-type FileInfo struct {
-	Path string `json:"path"`
-	Type int8   `json:"type"`
-	Hash string `json:"hash"`
-}
-
-const (
-	TypeFile int8 = 1
-	TypeDir  int8 = 2
-)
-
-var serverFileInfo *ServerFileInfo = &ServerFileInfo{}
 var baseDir string
 
 func Start() {
@@ -48,6 +37,7 @@ func Start() {
 
 	http.HandleFunc("/sync", sync)
 	http.HandleFunc("/files", files)
+	http.HandleFunc("/announcement", announcement)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Conf.Port), nil)
 	if err != nil {
 		fmt.Printf("server start failed err: %v\n", err)
@@ -70,13 +60,17 @@ func doRefreshFileInfo() {
 	log.Debugf("refresh files info\n")
 	files := make([]*FileInfo, 0)
 
+	serverFileInfo.ScanStatus = ScanStatusScanning
+
 	err := filepath.Walk(baseDir, walkFun(&files))
 	if err != nil {
 		log.Debugf("refresh files info failed\n")
+		serverFileInfo.ScanStatus = ScanStatusFailed
 		return
 	}
 
 	serverFileInfo.Files = files
+	serverFileInfo.ScanStatus = ScanStatusCompleted
 }
 
 func walkFun(files *[]*FileInfo) filepath.WalkFunc {

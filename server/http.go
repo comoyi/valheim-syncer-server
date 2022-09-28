@@ -42,3 +42,23 @@ func sync(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 }
+
+func announcement(writer http.ResponseWriter, request *http.Request) {
+	content := "欢迎"
+	announcement := &Announcement{Content: content}
+
+	bytes, err := json.Marshal(announcement)
+	if err != nil {
+		log.Debugf("json.Marshal failed, err: %s\n", err)
+		return
+	}
+
+	j := string(bytes)
+	log.Debugf("json: %s\n", j)
+	writer.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	_, err = writer.Write(bytes)
+	if err != nil {
+		log.Debugf("write failed, err: %s\n", err)
+		return
+	}
+}
