@@ -7,8 +7,12 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
+	"github.com/comoyi/valheim-syncer-server/config"
+	"github.com/comoyi/valheim-syncer-server/log"
 	"github.com/comoyi/valheim-syncer-server/theme"
 	"github.com/comoyi/valheim-syncer-server/utils/timeutil"
+	"github.com/spf13/viper"
+	"path/filepath"
 )
 
 var w fyne.Window
@@ -41,6 +45,7 @@ func initMainWindow() {
 	c = container.NewVBox()
 	w.SetContent(c)
 
+	initDir(c)
 	initAnnouncement(c)
 	initMsgContainer(c)
 }
@@ -69,6 +74,46 @@ func initMenu() {
 	w.SetMainMenu(mainMenu)
 }
 
+func initDir(c *fyne.Container) {
+	pathLabel := widget.NewLabel("Valheim文件夹 / MOD文件夹")
+	pathInput := widget.NewLabel("")
+	pathInput.SetText(config.Conf.Dir)
+
+	selectBtnText := "选择文件夹"
+	selectBtn := widget.NewButton(selectBtnText, func() {
+		dialog.ShowFolderOpen(func(uri fyne.ListableURI, err error) {
+			if err != nil {
+				log.Debugf("select folder failed, err: %v\n", err)
+				return
+			}
+			if uri == nil {
+				log.Debugf("select folder cancelled\n")
+				return
+			}
+			path := uri.Path()
+			path = filepath.Clean(path)
+			dialog.NewCustomConfirm("提示", "确定", "取消", widget.NewLabel("选择这个文件夹吗？\n"+path), func(b bool) {
+				if b {
+					pathInput.SetText(path)
+					baseDir = path
+					err := saveDirConfig(path)
+					if err != nil {
+						return
+					}
+				}
+			}, w).Show()
+		}, w)
+	})
+
+	pathBox := container.NewVBox()
+	pathBox.Add(pathLabel)
+	pathBox.Add(pathInput)
+	c2 := container.NewAdaptiveGrid(1)
+	c2.Add(selectBtn)
+	pathBox.Add(c2)
+	c.Add(pathBox)
+}
+
 func initAnnouncement(c *fyne.Container) {
 	announcementLabel := widget.NewLabel("公告")
 	var announcementInput = widget.NewMultiLineEntry()
@@ -86,6 +131,16 @@ func initMsgContainer(*fyne.Container) {
 	msgContainerScroll := container.NewScroll(msgContainer)
 	msgContainerScroll.SetMinSize(fyne.NewSize(800, 200))
 	c.Add(msgContainerScroll)
+}
+
+func saveDirConfig(path string) error {
+	viper.Set("dir", path)
+	err := config.SaveConfig()
+	if err != nil {
+		log.Debugf("save config failed, err: %+v\n", err)
+		return err
+	}
+	return nil
 }
 
 func addMsgWithTime(msg string) {

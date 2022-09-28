@@ -26,13 +26,10 @@ var versionText = "0.0.1"
 
 func Start() {
 
-	baseDir = config.Conf.BaseDir
-	if baseDir == "" {
-		fmt.Printf("baseDir invalid\n")
-		log.Errorf("baseDir invalid\n")
-		return
+	baseDir = config.Conf.Dir
+	if baseDir != "" {
+		baseDir = filepath.Clean(baseDir)
 	}
-	baseDir = strings.TrimSuffix(baseDir, string(os.PathSeparator))
 
 	go func() {
 		refreshFileInfo()
@@ -61,6 +58,12 @@ func refreshFileInfo() {
 
 func doRefreshFileInfo() {
 	log.Debugf("refresh files info\n")
+
+	if baseDir == "" {
+		log.Errorf("baseDir invalid\n")
+		return
+	}
+
 	files := make([]*FileInfo, 0)
 
 	serverFileInfo.ScanStatus = ScanStatusScanning
@@ -95,6 +98,7 @@ func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 			}
 		} else {
 			f, err := os.Open(path)
+			defer f.Close()
 			if err != nil {
 				return err
 			}

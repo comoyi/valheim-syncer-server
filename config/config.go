@@ -3,9 +3,12 @@ package config
 import (
 	"fmt"
 	"github.com/comoyi/valheim-syncer-server/log"
+	"github.com/comoyi/valheim-syncer-server/utils/fsutil"
 	"github.com/spf13/viper"
 	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 )
 
 var Conf Config
@@ -14,7 +17,14 @@ type Config struct {
 	DebugLevel string `toml:"debuglevel"`
 	LogLevel   int
 	Port       int    `toml:"port"`
-	BaseDir    string `toml:"basedir"`
+	Dir        string `toml:"dir"`
+}
+
+func initDefaultConfig() {
+	viper.SetDefault("debuglevel", "TRACE")
+	viper.SetDefault("LogLevel", log.Trace)
+	viper.SetDefault("port", 8080)
+	viper.SetDefault("dir", "")
 }
 
 func LoadConfig() {
@@ -22,12 +32,15 @@ func LoadConfig() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("config")
+	//viper.AddConfigPath("config")
 	viper.AddConfigPath(fmt.Sprintf("%s%s%s", "$HOME", string(os.PathSeparator), ".valheim-syncer-server"))
+
+	initDefaultConfig()
+
 	err = viper.ReadInConfig()
 	if err != nil {
 		log.Errorf("Read config failed, err: %v\n", err)
-		return
+		//return
 	}
 
 	debugLevel := strings.ToUpper(viper.GetString("debuglevel"))
@@ -54,4 +67,47 @@ func LoadConfig() {
 		return
 	}
 	log.Debugf("config: %+v\n", Conf)
+}
+
+var saveMutex = &sync.Mutex{}
+
+func SaveConfig() error {
+	saveMutex.Lock()
+	defer saveMutex.Unlock()
+
+	err := viper.WriteConfig()
+	if err == nil {
+		return nil
+	}
+
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Warnf("Get os.UserHomeDir failed, err: %v\n", err)
+		return err
+	}
+	log.Debugf("userHomeDir: %s\n", userHomeDir)
+
+	configPath := filepath.Join(userHomeDir, ".valheim-syncer-server")
+	configFile := filepath.Join(configPath, "config.toml")
+	log.Debugf("configFile: %s\n", configFile)
+
+	exist, err := fsutil.Exists(configPath)
+	if err != nil {
+		log.Warnf("Check isPathExist failed, err: %v\n", err)
+		return err
+	}
+	if !exist {
+		err = os.MkdirAll(configPath, os.ModePerm)
+		if err != nil {
+			log.Warnf("Get os.MkdirAll failed, err: %v\n", err)
+			return err
+		}
+	}
+
+	err = viper.WriteConfigAs(configFile)
+	if err != nil {
+		log.Errorf("WriteConfigAs failed, err: %v\n", err)
+		return err
+	}
+	return nil
 }
