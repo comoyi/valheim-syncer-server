@@ -6,4 +6,4 @@ port = 8080
 
 # 同步源文件夹
 #dir = 'C:\valheim'
-dir = '/tmp/valheim'
+#dir = '/tmp/valheim'

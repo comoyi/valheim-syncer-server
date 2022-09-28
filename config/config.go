@@ -21,8 +21,8 @@ type Config struct {
 }
 
 func initDefaultConfig() {
-	viper.SetDefault("debuglevel", "TRACE")
-	viper.SetDefault("LogLevel", log.Trace)
+	viper.SetDefault("debuglevel", "OFF")
+	viper.SetDefault("LogLevel", log.Off)
 	viper.SetDefault("port", 8080)
 	viper.SetDefault("dir", "")
 }
