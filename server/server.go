@@ -19,10 +19,10 @@ var serverFileInfo *ServerFileInfo = &ServerFileInfo{
 	Files:      make([]*FileInfo, 0),
 }
 
-var baseDir string
-
 var appName = "Valheim Syncer Server"
 var versionText = "0.0.1"
+
+var baseDir string
 
 func Start() {
 
@@ -61,6 +61,7 @@ func doRefreshFileInfo() {
 
 	if baseDir == "" {
 		log.Errorf("baseDir invalid\n")
+		setDirStatusLedRed()
 		return
 	}
 
@@ -72,11 +73,13 @@ func doRefreshFileInfo() {
 	if err != nil {
 		log.Debugf("refresh files info failed\n")
 		serverFileInfo.ScanStatus = ScanStatusFailed
+		setDirStatusLedRed()
 		return
 	}
 
 	serverFileInfo.Files = files
 	serverFileInfo.ScanStatus = ScanStatusCompleted
+	setDirStatusLedGreen()
 }
 
 func walkFun(files *[]*FileInfo) filepath.WalkFunc {

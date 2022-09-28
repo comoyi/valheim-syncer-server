@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
@@ -12,6 +13,7 @@ import (
 	"github.com/comoyi/valheim-syncer-server/theme"
 	"github.com/comoyi/valheim-syncer-server/utils/timeutil"
 	"github.com/spf13/viper"
+	"image/color"
 	"path/filepath"
 )
 
@@ -21,6 +23,7 @@ var myApp fyne.App
 
 var msgContainer = widget.NewLabel("")
 var announcementContent = ""
+var dirStatusLed = canvas.NewRectangle(color.RGBA{R: 255, G: 0, B: 0, A: 255})
 
 func StartGUI() {
 	initUI()
@@ -100,13 +103,17 @@ func initDir(c *fyne.Container) {
 					if err != nil {
 						return
 					}
+					addMsgWithTime("文件夹设置为：" + path)
 				}
 			}, w).Show()
 		}, w)
 	})
 
+	dirStatusLed.SetMinSize(fyne.NewSize(5, 5))
+
 	pathBox := container.NewVBox()
 	pathBox.Add(pathLabel)
+	pathBox.Add(dirStatusLed)
 	pathBox.Add(pathInput)
 	c2 := container.NewAdaptiveGrid(1)
 	c2.Add(selectBtn)
@@ -150,4 +157,14 @@ func addMsgWithTime(msg string) {
 
 func addMsg(msg string) {
 	msgContainer.SetText(msg + "\n" + msgContainer.Text)
+}
+
+func setDirStatusLedRed() {
+	dirStatusLed.FillColor = color.RGBA{R: 255, G: 0, B: 0, A: 255}
+	dirStatusLed.Refresh()
+}
+
+func setDirStatusLedGreen() {
+	dirStatusLed.FillColor = color.RGBA{R: 0, G: 255, B: 0, A: 255}
+	dirStatusLed.Refresh()
 }
