@@ -88,16 +88,16 @@ func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 			log.Warnf("path not excepted, path: %s\n", path)
 			return nil
 		}
-		pathRelative := strings.TrimPrefix(path, baseDir)
-		if pathRelative == "" {
+		relativePath := strings.TrimPrefix(path, baseDir)
+		if relativePath == "" {
 			return nil
 		}
 		var file *FileInfo
 		if info.IsDir() {
 			file = &FileInfo{
-				Path: pathRelative,
-				Type: TypeDir,
-				Hash: "",
+				RelativePath: relativePath,
+				Type:         TypeDir,
+				Hash:         "",
 			}
 		} else {
 			f, err := os.Open(path)
@@ -113,9 +113,9 @@ func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 			hashSum := fmt.Sprintf("%x", hashSumRaw)
 			log.Tracef("file: %s, hashSum: %s\n", path, hashSum)
 			file = &FileInfo{
-				Path: pathRelative,
-				Type: TypeFile,
-				Hash: hashSum,
+				RelativePath: relativePath,
+				Type:         TypeFile,
+				Hash:         hashSum,
 			}
 		}
 		*files = append(*files, file)
