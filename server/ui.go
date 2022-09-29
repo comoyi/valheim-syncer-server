@@ -11,7 +11,7 @@ import (
 	"github.com/comoyi/valheim-syncer-server/config"
 	"github.com/comoyi/valheim-syncer-server/log"
 	"github.com/comoyi/valheim-syncer-server/theme"
-	"github.com/comoyi/valheim-syncer-server/utils/timeutil"
+	"github.com/comoyi/valheim-syncer-server/util/timeutil"
 	"github.com/spf13/viper"
 	"image/color"
 	"path/filepath"
