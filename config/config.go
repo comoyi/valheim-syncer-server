@@ -7,24 +7,21 @@ import (
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 )
 
 var Conf Config
 
 type Config struct {
-	DebugLevel string `toml:"debuglevel"`
-	LogLevel   int
-	Gui        string `toml:"gui"`
-	Port       int    `toml:"port"`
-	Dir        string `toml:"dir"`
-	Interval   int64  `toml:"interval"`
+	LogLevel string `toml:"log_level" mapstructure:"log_level"`
+	Gui      string `toml:"gui" mapstructure:"gui"`
+	Port     int    `toml:"port" mapstructure:"port"`
+	Dir      string `toml:"dir" mapstructure:"dir"`
+	Interval int64  `toml:"interval" mapstructure:"interval"`
 }
 
 func initDefaultConfig() {
-	viper.SetDefault("debuglevel", "OFF")
-	viper.SetDefault("LogLevel", log.Off)
+	viper.SetDefault("log_level", log.Off)
 	viper.SetDefault("gui", "ON")
 	viper.SetDefault("port", 8080)
 	viper.SetDefault("dir", "")
@@ -36,7 +33,6 @@ func LoadConfig() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 	viper.AddConfigPath(".")
-	//viper.AddConfigPath("config")
 	viper.AddConfigPath(fmt.Sprintf("%s%s%s", "$HOME", string(os.PathSeparator), ".valheim-syncer-server"))
 
 	initDefaultConfig()
@@ -45,24 +41,6 @@ func LoadConfig() {
 	if err != nil {
 		log.Errorf("Read config failed, err: %v\n", err)
 		//return
-	}
-
-	debugLevel := strings.ToUpper(viper.GetString("debuglevel"))
-	switch debugLevel {
-	case "TRACE":
-		viper.Set("LogLevel", log.Trace)
-	case "DEBUG":
-		viper.Set("LogLevel", log.Debug)
-	case "INFO":
-		viper.Set("LogLevel", log.Info)
-	case "WARN":
-		viper.Set("LogLevel", log.Warn)
-	case "ERROR":
-		viper.Set("LogLevel", log.Error)
-	case "OFF":
-		viper.Set("LogLevel", log.Off)
-	default:
-		viper.Set("LogLevel", log.Off)
 	}
 
 	err = viper.Unmarshal(&Conf)
