@@ -18,7 +18,7 @@ var serverFileInfo *ServerFileInfo = &ServerFileInfo{
 }
 
 var appName = "Valheim Syncer Server"
-var versionText = "1.0.1"
+var versionText = "0.0.1"
 
 var baseDir string
 
@@ -70,7 +70,7 @@ func doRefreshFileInfo() {
 
 	err := filepath.Walk(baseDir, walkFun(&files))
 	if err != nil {
-		log.Debugf("refresh files info failed\n")
+		log.Debugf("refresh files info failed, err: %v\n", err)
 		serverFileInfo.ScanStatus = ScanStatusFailed
 		setDirStatusLedRed()
 		return
@@ -85,6 +85,9 @@ func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 	return func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
+		}
+		if path == baseDir {
+			return nil
 		}
 		if !strings.HasPrefix(path, baseDir) {
 			log.Warnf("path not expected, baseDir: %s, path: %s\n", baseDir, path)
