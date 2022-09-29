@@ -1,14 +1,12 @@
 package server
 
 import (
-	"crypto/md5"
 	"fmt"
 	"github.com/comoyi/valheim-syncer-server/config"
 	"github.com/comoyi/valheim-syncer-server/log"
-	"io"
+	"github.com/comoyi/valheim-syncer-server/util/cryptoutil/md5util"
 	"io/fs"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -20,7 +18,7 @@ var serverFileInfo *ServerFileInfo = &ServerFileInfo{
 }
 
 var appName = "Valheim Syncer Server"
-var versionText = "0.0.1"
+var versionText = "1.0.1"
 
 var baseDir string
 
@@ -85,11 +83,20 @@ func doRefreshFileInfo() {
 
 func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 	return func(path string, info fs.FileInfo, err error) error {
-		if !strings.HasPrefix(path, baseDir) {
-			log.Warnf("path not excepted, path: %s\n", path)
-			return nil
+		if err != nil {
+			return err
 		}
-		relativePath := strings.TrimPrefix(path, baseDir)
+		if !strings.HasPrefix(path, baseDir) {
+			log.Warnf("path not expected, baseDir: %s, path: %s\n", baseDir, path)
+			return fmt.Errorf("path not expected, baseDir: %s, path: %s\n", baseDir, path)
+		}
+		relativePath, err := filepath.Rel(baseDir, path)
+		if err != nil {
+			return err
+		}
+		if strings.HasPrefix(relativePath, ".") {
+			return fmt.Errorf("relativePath not expected, baseDir: %s, path: %s, relativePath: %s\n", baseDir, path, relativePath)
+		}
 		if relativePath == "" {
 			return nil
 		}
@@ -102,17 +109,10 @@ func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 				Hash:         "",
 			}
 		} else {
-			f, err := os.Open(path)
-			defer f.Close()
+			hashSum, err := md5util.SumFile(path)
 			if err != nil {
 				return err
 			}
-			bytes, err := io.ReadAll(f)
-			if err != nil {
-				return err
-			}
-			hashSumRaw := md5.Sum(bytes)
-			hashSum := fmt.Sprintf("%x", hashSumRaw)
 			log.Tracef("file: %s, hashSum: %s\n", path, hashSum)
 			file = &FileInfo{
 				RelativePath: relativePath,
