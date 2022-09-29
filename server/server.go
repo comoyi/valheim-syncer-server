@@ -47,10 +47,11 @@ func Start() {
 }
 
 func refreshFileInfo() {
+	interval := config.Conf.Interval
 	doRefreshFileInfo()
 	for {
 		select {
-		case <-time.After(10 * time.Second):
+		case <-time.After(time.Duration(interval) * time.Second):
 			doRefreshFileInfo()
 		}
 	}

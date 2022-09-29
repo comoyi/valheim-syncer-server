@@ -19,6 +19,7 @@ type Config struct {
 	Gui        string `toml:"gui"`
 	Port       int    `toml:"port"`
 	Dir        string `toml:"dir"`
+	Interval   int64  `toml:"interval"`
 }
 
 func initDefaultConfig() {
@@ -27,6 +28,7 @@ func initDefaultConfig() {
 	viper.SetDefault("gui", "ON")
 	viper.SetDefault("port", 8080)
 	viper.SetDefault("dir", "")
+	viper.SetDefault("interval", 10)
 }
 
 func LoadConfig() {
