@@ -2,11 +2,12 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/comoyi/valheim-syncer-server/log"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 func files(writer http.ResponseWriter, request *http.Request) {
@@ -28,16 +29,19 @@ func files(writer http.ResponseWriter, request *http.Request) {
 
 func sync(writer http.ResponseWriter, request *http.Request) {
 
-	file := request.FormValue("file")
+	relativePath := request.FormValue("file")
 
-	filePath := fmt.Sprintf("%s%s%s", baseDir, string(os.PathSeparator), file)
+	filePath := filepath.Join(baseDir, relativePath)
+	if !strings.HasPrefix(filePath, baseDir) {
+		return
+	}
+
 	f, err := os.Open(filePath)
-	defer f.Close()
-	bytes, err := io.ReadAll(f)
 	if err != nil {
 		return
 	}
-	_, err = writer.Write(bytes)
+	defer f.Close()
+	_, err = io.Copy(writer, f)
 	if err != nil {
 		return
 	}
