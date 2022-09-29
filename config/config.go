@@ -16,6 +16,7 @@ var Conf Config
 type Config struct {
 	DebugLevel string `toml:"debuglevel"`
 	LogLevel   int
+	Gui        string `toml:"gui"`
 	Port       int    `toml:"port"`
 	Dir        string `toml:"dir"`
 }
@@ -23,6 +24,7 @@ type Config struct {
 func initDefaultConfig() {
 	viper.SetDefault("debuglevel", "OFF")
 	viper.SetDefault("LogLevel", log.Off)
+	viper.SetDefault("gui", "ON")
 	viper.SetDefault("port", 8080)
 	viper.SetDefault("dir", "")
 }

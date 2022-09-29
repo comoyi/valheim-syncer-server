@@ -160,11 +160,17 @@ func addMsg(msg string) {
 }
 
 func setDirStatusLedRed() {
+	if config.Conf.Gui == "OFF" {
+		return
+	}
 	dirStatusLed.FillColor = color.RGBA{R: 255, G: 0, B: 0, A: 255}
 	dirStatusLed.Refresh()
 }
 
 func setDirStatusLedGreen() {
+	if config.Conf.Gui == "OFF" {
+		return
+	}
 	dirStatusLed.FillColor = color.RGBA{R: 0, G: 255, B: 0, A: 255}
 	dirStatusLed.Refresh()
 }

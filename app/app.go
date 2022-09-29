@@ -12,5 +12,9 @@ func Start() {
 		server.Start()
 	}()
 
-	server.StartGUI()
+	if config.Conf.Gui != "OFF" {
+		server.StartGUI()
+	} else {
+		select {}
+	}
 }
