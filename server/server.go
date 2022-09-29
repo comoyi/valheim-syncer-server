@@ -94,6 +94,7 @@ func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 		}
 		var file *FileInfo
 		if info.IsDir() {
+			log.Tracef("dir:  %s\n", path)
 			file = &FileInfo{
 				RelativePath: relativePath,
 				Type:         TypeDir,
