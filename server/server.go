@@ -18,7 +18,7 @@ var serverFileInfo *ServerFileInfo = &ServerFileInfo{
 }
 
 var appName = "Valheim Syncer Server"
-var versionText = "0.0.1"
+var versionText = "1.0.1"
 
 var baseDir string
 
