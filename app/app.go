@@ -15,6 +15,7 @@ func Start() {
 	if config.Conf.Gui != "OFF" {
 		server.StartGUI()
 	} else {
-		select {}
+		c := make(chan struct{})
+		<-c
 	}
 }
