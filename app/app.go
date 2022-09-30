@@ -7,5 +7,15 @@ import (
 
 func Start() {
 	config.LoadConfig()
-	server.Start()
+
+	go func() {
+		server.Start()
+	}()
+
+	if config.Conf.Gui != "OFF" {
+		server.StartGUI()
+	} else {
+		c := make(chan struct{})
+		<-c
+	}
 }
