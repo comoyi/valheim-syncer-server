@@ -36,10 +36,6 @@ var dirStatusLed = canvas.NewRectangle(color.RGBA{R: 255, G: 0, B: 0, A: 255})
 func StartGUI() {
 	initUI()
 
-	go func() {
-		autoCleanMsg()
-	}()
-
 	w.ShowAndRun()
 }
 
@@ -47,6 +43,10 @@ func initUI() {
 	initMainWindow()
 
 	initMenu()
+
+	go func() {
+		autoCleanMsg()
+	}()
 }
 
 func initMainWindow() {
