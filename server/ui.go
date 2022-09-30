@@ -12,9 +12,11 @@ import (
 	"github.com/comoyi/valheim-syncer-server/config"
 	"github.com/comoyi/valheim-syncer-server/log"
 	"github.com/comoyi/valheim-syncer-server/theme"
+	"github.com/comoyi/valheim-syncer-server/util/fsutil"
 	"github.com/comoyi/valheim-syncer-server/util/timeutil"
 	"github.com/spf13/viper"
 	"image/color"
+	"os"
 	"path/filepath"
 )
 
@@ -117,10 +119,66 @@ func initDir(c *fyne.Container) {
 	pathBox.Add(pathLabel)
 	pathBox.Add(dirStatusLed)
 	pathBox.Add(pathInput)
-	c2 := container.NewAdaptiveGrid(1)
+	c2 := container.NewAdaptiveGrid(2)
+	initManualInputBtn(c2, pathInput)
 	c2.Add(selectBtn)
 	pathBox.Add(c2)
 	c.Add(pathBox)
+}
+
+func initManualInputBtn(c *fyne.Container, pathInput *widget.Label) {
+	var manualInputDialog dialog.Dialog
+	inputBtnText := "手动输入文件夹地址"
+	inputBtn := widget.NewButton(inputBtnText, func() {
+		manualPathInput := widget.NewEntry()
+		tipLabel := widget.NewLabel("")
+		box := container.NewVBox(manualPathInput, tipLabel)
+		manualInputDialog = dialog.NewCustomConfirm("请输入文件夹地址", "确定", "取消", box, func(b bool) {
+			if b {
+				if manualPathInput.Text == "" {
+					tipLabel.SetText("请输入文件夹地址")
+					manualInputDialog.Show()
+					return
+				}
+				path := filepath.Clean(manualPathInput.Text)
+				exists, err := fsutil.Exists(path)
+				if err != nil {
+					tipLabel.SetText("文件夹地址检测失败")
+					manualInputDialog.Show()
+					return
+				}
+				if !exists {
+					tipLabel.SetText("该文件夹不存在")
+					manualInputDialog.Show()
+					return
+				}
+				f, err := os.Stat(path)
+				if err != nil {
+					tipLabel.SetText("文件夹地址检测失败[2]")
+					manualInputDialog.Show()
+					return
+				}
+				if !f.IsDir() {
+					tipLabel.SetText("请输入正确的文件夹地址")
+					manualInputDialog.Show()
+					return
+				}
+
+				pathInput.SetText(path)
+				baseDir = path
+				err = saveDirConfig(path)
+				if err != nil {
+					return
+				}
+				addMsgWithTime("文件夹设置为：" + path)
+			}
+		}, w)
+		manualInputDialog.Resize(fyne.NewSize(700, 100))
+		manualInputDialog.Show()
+	})
+	inputBtn.SetIcon(theme2.DocumentCreateIcon())
+
+	c.Add(inputBtn)
 }
 
 func initAnnouncement(c *fyne.Container) {
