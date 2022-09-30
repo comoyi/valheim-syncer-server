@@ -12,6 +12,7 @@ import (
 	"github.com/comoyi/valheim-syncer-server/config"
 	"github.com/comoyi/valheim-syncer-server/log"
 	"github.com/comoyi/valheim-syncer-server/theme"
+	"github.com/comoyi/valheim-syncer-server/util/cryptoutil/md5util"
 	"github.com/comoyi/valheim-syncer-server/util/fsutil"
 	"github.com/comoyi/valheim-syncer-server/util/timeutil"
 	"github.com/spf13/viper"
@@ -26,6 +27,7 @@ var myApp fyne.App
 
 var msgContainer = widget.NewLabel("")
 var announcementContent = ""
+var announcementHash = ""
 var dirStatusLed = canvas.NewRectangle(color.RGBA{R: 255, G: 0, B: 0, A: 255})
 
 func StartGUI() {
@@ -186,7 +188,7 @@ func initAnnouncement(c *fyne.Container) {
 	var announcementInput = widget.NewMultiLineEntry()
 	announcementInput.SetMinRowsVisible(7)
 	announcementBtn := widget.NewButton("发布公告", func() {
-		announcementContent = announcementInput.Text
+		setAnnouncement(announcementInput.Text)
 		addMsgWithTime("发布公告成功")
 	})
 	announcementBtn.SetIcon(theme2.VolumeUpIcon())
@@ -234,4 +236,13 @@ func setDirStatusLedGreen() {
 	}
 	dirStatusLed.FillColor = color.RGBA{R: 0, G: 255, B: 0, A: 255}
 	dirStatusLed.Refresh()
+}
+
+func setAnnouncement(content string) {
+	announcementContent = content
+	if announcementContent != "" {
+		announcementHash = md5util.SumString(announcementContent)
+	} else {
+		announcementHash = ""
+	}
 }
