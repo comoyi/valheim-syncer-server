@@ -26,8 +26,10 @@ var c *fyne.Container
 var myApp fyne.App
 
 var msgContainer = widget.NewLabel("")
-var announcementContent = ""
-var announcementHash = ""
+var ann = &Announcement{
+	Content: "",
+	Hash:    "",
+}
 var dirStatusLed = canvas.NewRectangle(color.RGBA{R: 255, G: 0, B: 0, A: 255})
 
 func StartGUI() {
@@ -239,10 +241,10 @@ func setDirStatusLedGreen() {
 }
 
 func setAnnouncement(content string) {
-	announcementContent = content
-	if announcementContent != "" {
-		announcementHash = md5util.SumString(announcementContent)
+	ann.Content = content
+	if ann.Content != "" {
+		ann.Hash = md5util.SumString(ann.Content)
 	} else {
-		announcementHash = ""
+		ann.Hash = ""
 	}
 }

@@ -48,15 +48,15 @@ func sync(writer http.ResponseWriter, request *http.Request) {
 }
 
 func announcement(writer http.ResponseWriter, request *http.Request) {
-	content := announcementContent
+	content := ann.Content
 	hash := request.FormValue("hash")
 	defer request.Body.Close()
 	if hash != "" {
-		if announcementHash == hash {
+		if ann.Hash == hash {
 			content = ""
 		}
 	}
-	announcement := &Announcement{Content: content, Hash: announcementHash}
+	announcement := &Announcement{Content: content, Hash: ann.Hash}
 
 	bytes, err := json.Marshal(announcement)
 	if err != nil {
