@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	theme2 "fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/comoyi/valheim-syncer-server/config"
 	"github.com/comoyi/valheim-syncer-server/log"
@@ -108,6 +109,7 @@ func initDir(c *fyne.Container) {
 			}, w).Show()
 		}, w)
 	})
+	selectBtn.SetIcon(theme2.FolderIcon())
 
 	dirStatusLed.SetMinSize(fyne.NewSize(5, 5))
 
@@ -129,6 +131,7 @@ func initAnnouncement(c *fyne.Container) {
 		announcementContent = announcementInput.Text
 		addMsgWithTime("发布公告成功")
 	})
+	announcementBtn.SetIcon(theme2.VolumeUpIcon())
 	c.Add(announcementLabel)
 	c.Add(announcementInput)
 	c.Add(announcementBtn)
