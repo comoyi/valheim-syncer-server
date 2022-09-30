@@ -19,6 +19,7 @@ import (
 	"image/color"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 var w fyne.Window
@@ -34,6 +35,10 @@ var dirStatusLed = canvas.NewRectangle(color.RGBA{R: 255, G: 0, B: 0, A: 255})
 
 func StartGUI() {
 	initUI()
+
+	go func() {
+		autoCleanMsg()
+	}()
 
 	w.ShowAndRun()
 }
@@ -246,5 +251,16 @@ func setAnnouncement(content string) {
 		ann.Hash = md5util.SumString(ann.Content)
 	} else {
 		ann.Hash = ""
+	}
+}
+
+func autoCleanMsg() {
+	max := 10000
+	for {
+		<-time.After(300 * time.Second)
+		if len([]rune(msgContainer.Text)) > max {
+			msgContainer.Text = string([]rune(msgContainer.Text)[:max])
+			msgContainer.Refresh()
+		}
 	}
 }
