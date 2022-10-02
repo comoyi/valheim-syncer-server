@@ -14,11 +14,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v3
+
       - name: Set env
         run: |
           echo "X_APP_VERSION=`cat VERSION`" >> $GITHUB_ENV
-
-      - uses: actions/checkout@v3
 
       - name: Set up Go
         uses: actions/setup-go@v3
