@@ -1,8 +1,8 @@
 # 日志等级 TRACE DEBUG INFO WARN ERROR OFF
-log_level = "OFF"
+log_level = 'OFF'
 
 # 是否启动界面 ON: 有界面, OFF: 无界面
-#gui = "ON"
+#gui = 'ON'
 
 # 端口
 port = 8080
