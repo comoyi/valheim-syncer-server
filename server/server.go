@@ -7,6 +7,7 @@ import (
 	"github.com/comoyi/valheim-syncer-server/util/cryptoutil/md5util"
 	"io/fs"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -18,7 +19,7 @@ var serverFileInfo *ServerFileInfo = &ServerFileInfo{
 }
 
 var appName = "Valheim Syncer Server"
-var versionText = "1.0.1"
+var versionText = "1.0.2"
 
 var baseDir string
 
@@ -109,6 +110,13 @@ func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 			file = &FileInfo{
 				RelativePath: relativePath,
 				Type:         TypeDir,
+				Hash:         "",
+			}
+		} else if info.Mode()&os.ModeSymlink != 0 {
+			log.Tracef("symlink:  %s\n", path)
+			file = &FileInfo{
+				RelativePath: relativePath,
+				Type:         TypeSymlink,
 				Hash:         "",
 			}
 		} else {

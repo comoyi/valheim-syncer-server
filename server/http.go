@@ -36,13 +36,37 @@ func sync(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	f, err := os.Open(filePath)
+	fileInfo, err := os.Lstat(filePath)
 	if err != nil {
 		return
 	}
-	defer f.Close()
-	_, err = io.Copy(writer, f)
-	if err != nil {
+
+	if fileInfo.Mode().IsRegular() {
+		f, err := os.Open(filePath)
+		if err != nil {
+			return
+		}
+		defer f.Close()
+		_, err = io.Copy(writer, f)
+		if err != nil {
+			return
+		}
+		return
+	} else if fileInfo.IsDir() {
+		return
+	} else if fileInfo.Mode()&os.ModeSymlink != 0 {
+		linkDest, err := os.Readlink(filePath)
+		if err != nil {
+			return
+		}
+		outReader := strings.NewReader(linkDest)
+		_, err = io.Copy(writer, outReader)
+		if err != nil {
+			return
+		}
+		return
+	} else {
+		// unhandled type
 		return
 	}
 }
