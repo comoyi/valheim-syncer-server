@@ -194,6 +194,10 @@ func initAnnouncement(c *fyne.Container) {
 	announcementLabel := widget.NewLabel("公告")
 	var announcementInput = widget.NewMultiLineEntry()
 	announcementInput.SetMinRowsVisible(7)
+
+	announcementInput.SetText(config.Conf.Announcement)
+	setAnnouncement(announcementInput.Text)
+
 	announcementBtn := widget.NewButton("发布公告", func() {
 		setAnnouncement(announcementInput.Text)
 		addMsgWithTime("发布公告成功")

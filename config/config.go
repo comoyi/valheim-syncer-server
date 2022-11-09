@@ -12,11 +12,12 @@ import (
 var Conf Config
 
 type Config struct {
-	LogLevel string `toml:"log_level" mapstructure:"log_level"`
-	Gui      string `toml:"gui" mapstructure:"gui"`
-	Port     int    `toml:"port" mapstructure:"port"`
-	Dir      string `toml:"dir" mapstructure:"dir"`
-	Interval int64  `toml:"interval" mapstructure:"interval"`
+	LogLevel     string `toml:"log_level" mapstructure:"log_level"`
+	Gui          string `toml:"gui" mapstructure:"gui"`
+	Port         int    `toml:"port" mapstructure:"port"`
+	Dir          string `toml:"dir" mapstructure:"dir"`
+	Interval     int64  `toml:"interval" mapstructure:"interval"`
+	Announcement string `toml:"announcement" mapstructure:"announcement"`
 }
 
 func initDefaultConfig() {
