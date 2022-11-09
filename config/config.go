@@ -26,6 +26,7 @@ func initDefaultConfig() {
 	viper.SetDefault("port", 8080)
 	viper.SetDefault("dir", "")
 	viper.SetDefault("interval", 10)
+	viper.SetDefault("announcement", "")
 }
 
 func LoadConfig() {
