@@ -196,7 +196,6 @@ func initAnnouncement(c *fyne.Container) {
 	announcementInput.SetMinRowsVisible(7)
 
 	announcementInput.SetText(config.Conf.Announcement)
-	setAnnouncement(announcementInput.Text)
 
 	announcementBtn := widget.NewButton("发布公告", func() {
 		setAnnouncement(announcementInput.Text)

@@ -30,6 +30,8 @@ func Start() {
 		baseDir = filepath.Clean(baseDir)
 	}
 
+	setAnnouncement(config.Conf.Announcement)
+
 	go func() {
 		refreshFileInfo()
 	}()
