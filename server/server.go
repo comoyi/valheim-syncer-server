@@ -98,7 +98,12 @@ func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 		if err != nil {
 			return err
 		}
-		if strings.HasPrefix(relativePath, ".") {
+		if relativePath == "." ||
+			relativePath == ".." ||
+			strings.HasPrefix(relativePath, "./") ||
+			strings.HasPrefix(relativePath, ".\\") ||
+			strings.HasPrefix(relativePath, "../") ||
+			strings.HasPrefix(relativePath, "..\\") {
 			return fmt.Errorf("relativePath not expected, baseDir: %s, path: %s, relativePath: %s\n", baseDir, path, relativePath)
 		}
 		if relativePath == "" {
@@ -119,7 +124,7 @@ func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 				Type:         TypeSymlink,
 				Hash:         "",
 			}
-		} else {
+		} else if info.Mode().IsRegular() {
 			hashSum, err := md5util.SumFile(path)
 			if err != nil {
 				return err
@@ -130,6 +135,9 @@ func walkFun(files *[]*FileInfo) filepath.WalkFunc {
 				Type:         TypeFile,
 				Hash:         hashSum,
 			}
+		} else {
+			log.Tracef("unhandled file type, filepath:  %s\n", path)
+			return nil
 		}
 		*files = append(*files, file)
 		return nil

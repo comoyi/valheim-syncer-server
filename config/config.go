@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/comoyi/valheim-syncer-server/log"
 	"github.com/comoyi/valheim-syncer-server/util/fsutil"
 	"github.com/spf13/viper"
@@ -13,11 +12,12 @@ import (
 var Conf Config
 
 type Config struct {
-	LogLevel string `toml:"log_level" mapstructure:"log_level"`
-	Gui      string `toml:"gui" mapstructure:"gui"`
-	Port     int    `toml:"port" mapstructure:"port"`
-	Dir      string `toml:"dir" mapstructure:"dir"`
-	Interval int64  `toml:"interval" mapstructure:"interval"`
+	LogLevel     string `toml:"log_level" mapstructure:"log_level"`
+	Gui          string `toml:"gui" mapstructure:"gui"`
+	Port         int    `toml:"port" mapstructure:"port"`
+	Dir          string `toml:"dir" mapstructure:"dir"`
+	Interval     int64  `toml:"interval" mapstructure:"interval"`
+	Announcement string `toml:"announcement" mapstructure:"announcement"`
 }
 
 func initDefaultConfig() {
@@ -26,14 +26,22 @@ func initDefaultConfig() {
 	viper.SetDefault("port", 8080)
 	viper.SetDefault("dir", "")
 	viper.SetDefault("interval", 10)
+	viper.SetDefault("announcement", "")
 }
 
 func LoadConfig() {
 	var err error
+
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 	viper.AddConfigPath(".")
-	viper.AddConfigPath(fmt.Sprintf("%s%s%s", "$HOME", string(os.PathSeparator), ".valheim-syncer-server"))
+
+	configDirPath, err := getConfigDirPath()
+	if err != nil {
+		log.Warnf("Get configDirPath failed, err: %v\n", err)
+		return
+	}
+	viper.AddConfigPath(configDirPath)
 
 	initDefaultConfig()
 
@@ -62,24 +70,22 @@ func SaveConfig() error {
 		return nil
 	}
 
-	userHomeDir, err := os.UserHomeDir()
+	configDirPath, err := getConfigDirPath()
 	if err != nil {
-		log.Warnf("Get os.UserHomeDir failed, err: %v\n", err)
+		log.Warnf("Get configDirPath failed, err: %v\n", err)
 		return err
 	}
-	log.Debugf("userHomeDir: %s\n", userHomeDir)
 
-	configPath := filepath.Join(userHomeDir, ".valheim-syncer-server")
-	configFile := filepath.Join(configPath, "config.toml")
+	configFile := filepath.Join(configDirPath, "config.toml")
 	log.Debugf("configFile: %s\n", configFile)
 
-	exist, err := fsutil.Exists(configPath)
+	exist, err := fsutil.Exists(configDirPath)
 	if err != nil {
 		log.Warnf("Check isPathExist failed, err: %v\n", err)
 		return err
 	}
 	if !exist {
-		err = os.MkdirAll(configPath, os.ModePerm)
+		err = os.MkdirAll(configDirPath, os.FileMode(0o755))
 		if err != nil {
 			log.Warnf("Get os.MkdirAll failed, err: %v\n", err)
 			return err
@@ -92,4 +98,24 @@ func SaveConfig() error {
 		return err
 	}
 	return nil
+}
+
+func getConfigDirPath() (string, error) {
+	configRootPath, err := getConfigRootPath()
+	if err != nil {
+		return "", err
+	}
+
+	configPath := filepath.Join(configRootPath, ".valheim-syncer-server")
+	return configPath, nil
+}
+
+func getConfigRootPath() (string, error) {
+	var err error
+	configRootPath := ""
+	configRootPath, err = os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return configRootPath, nil
 }
